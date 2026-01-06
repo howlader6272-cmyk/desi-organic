@@ -6,7 +6,7 @@ const MoneyBackGuarantee = () => {
   return (
     <section className="py-10 md:py-14">
       <div className="container">
-        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-moss p-8 md:p-12">
+        <div className="relative rounded-2xl overflow-hidden bg-gradient-to-br from-primary via-moss to-primary p-8 md:p-12 shadow-[0_20px_60px_-15px_hsl(var(--primary)/0.5)]">
           {/* Background Pattern */}
           <div className="absolute inset-0 opacity-10">
             <div className="absolute top-0 right-0 w-64 h-64 rounded-full bg-white/20 -translate-y-1/2 translate-x-1/2" />
