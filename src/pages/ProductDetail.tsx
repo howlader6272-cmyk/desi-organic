@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Star, Minus, Plus, ShoppingCart, Truck, Shield, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -23,6 +23,7 @@ interface ProductVariant {
 
 const ProductDetail = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const { addItem, getItemCount } = useCart();
   const { toast } = useToast();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -95,6 +96,8 @@ const ProductDetail = () => {
       title: "কার্টে যোগ করা হয়েছে",
       description: `${product.name_bn} ${selectedVariant?.name_bn || ""} (${quantity}টি)`,
     });
+
+    navigate("/cart");
   };
 
   const nextImage = () => {
