@@ -112,6 +112,51 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_posts: {
+        Row: {
+          author: string | null
+          category: string | null
+          content: string | null
+          created_at: string | null
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          is_published: boolean | null
+          published_at: string | null
+          slug: string
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          published_at?: string | null
+          slug: string
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_published?: boolean | null
+          published_at?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cart_items: {
         Row: {
           cart_id: string
@@ -385,6 +430,42 @@ export type Database = {
           min_order_free_delivery?: number | null
           name?: string
           name_bn?: string
+        }
+        Relationships: []
+      }
+      homepage_sections: {
+        Row: {
+          content: Json | null
+          id: string
+          is_active: boolean | null
+          section_key: string
+          subtitle: string | null
+          subtitle_bn: string | null
+          title: string | null
+          title_bn: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json | null
+          id?: string
+          is_active?: boolean | null
+          section_key: string
+          subtitle?: string | null
+          subtitle_bn?: string | null
+          title?: string | null
+          title_bn?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json | null
+          id?: string
+          is_active?: boolean | null
+          section_key?: string
+          subtitle?: string | null
+          subtitle_bn?: string | null
+          title?: string | null
+          title_bn?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -663,6 +744,33 @@ export type Database = {
           },
         ]
       }
+      page_contents: {
+        Row: {
+          content: Json | null
+          id: string
+          page_key: string
+          title: string
+          title_bn: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          content?: Json | null
+          id?: string
+          page_key: string
+          title: string
+          title_bn?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          content?: Json | null
+          id?: string
+          page_key?: string
+          title?: string
+          title_bn?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       product_variants: {
         Row: {
           created_at: string
@@ -909,6 +1017,42 @@ export type Database = {
           key?: string
           updated_at?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      testimonials: {
+        Row: {
+          avatar_url: string | null
+          comment: string
+          created_at: string | null
+          customer_name: string
+          id: string
+          is_active: boolean | null
+          product_name: string | null
+          rating: number | null
+          sort_order: number | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          comment: string
+          created_at?: string | null
+          customer_name: string
+          id?: string
+          is_active?: boolean | null
+          product_name?: string | null
+          rating?: number | null
+          sort_order?: number | null
+        }
+        Update: {
+          avatar_url?: string | null
+          comment?: string
+          created_at?: string | null
+          customer_name?: string
+          id?: string
+          is_active?: boolean | null
+          product_name?: string | null
+          rating?: number | null
+          sort_order?: number | null
         }
         Relationships: []
       }

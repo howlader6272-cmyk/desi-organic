@@ -43,6 +43,7 @@ import AdminSettings from "./pages/admin/Settings";
 import AdminChat from "./pages/admin/Chat";
 import AdminIncompleteOrders from "./pages/admin/IncompleteOrders";
 import AdminRecoveryAnalytics from "./pages/admin/RecoveryAnalytics";
+import AdminContent from "./pages/admin/Content";
 import LiveChatWidget from "./components/chat/LiveChatWidget";
 
 const queryClient = new QueryClient();
@@ -99,6 +100,7 @@ const App = () => (
                 <Route path="chat" element={<AdminChat />} />
                 <Route path="incomplete-orders" element={<AdminIncompleteOrders />} />
                 <Route path="recovery-analytics" element={<AdminRecoveryAnalytics />} />
+                <Route path="content" element={<AdminContent />} />
               </Route>
 
               <Route path="*" element={<NotFound />} />

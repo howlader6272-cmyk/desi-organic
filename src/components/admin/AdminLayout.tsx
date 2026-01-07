@@ -18,6 +18,7 @@ import {
   ChevronRight,
   AlertCircle,
   TrendingUp,
+  FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
@@ -39,6 +40,7 @@ const AdminLayout = () => {
     { icon: Tag, label: "কুপন", href: "/admin/coupons" },
     { icon: Truck, label: "ডেলিভারি জোন", href: "/admin/delivery-zones" },
     { icon: Image, label: "ব্যানার", href: "/admin/banners" },
+    { icon: FileText, label: "কন্টেন্ট", href: "/admin/content" },
     { icon: MessageCircle, label: "লাইভ চ্যাট", href: "/admin/chat" },
     { icon: Settings, label: "সেটিংস", href: "/admin/settings" },
   ];
