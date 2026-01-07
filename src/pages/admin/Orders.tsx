@@ -13,6 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -48,6 +49,8 @@ const AdminOrders = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editOrder, setEditOrder] = useState<any>(null);
+  const [selectedOrders, setSelectedOrders] = useState<Set<string>>(new Set());
+  const [isBulkSending, setIsBulkSending] = useState(false);
 
   const { data: orders, isLoading } = useOrders();
   const updateOrder = useUpdateOrder();
@@ -106,6 +109,35 @@ const AdminOrders = () => {
     return true;
   }) || [];
 
+  // Get orders eligible for Steadfast (not already sent, not cancelled/delivered/refunded)
+  const eligibleForSteadfast = filteredOrders.filter(
+    (order: any) => !order.steadfast_consignment_id && 
+    !["delivered", "cancelled", "refunded"].includes(order.order_status)
+  );
+
+  // Get selected orders that are eligible
+  const selectedEligibleOrders = eligibleForSteadfast.filter(
+    (order: any) => selectedOrders.has(order.id)
+  );
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(new Set(eligibleForSteadfast.map((o: any) => o.id)));
+    } else {
+      setSelectedOrders(new Set());
+    }
+  };
+
+  const handleSelectOrder = (orderId: string, checked: boolean) => {
+    const newSelected = new Set(selectedOrders);
+    if (checked) {
+      newSelected.add(orderId);
+    } else {
+      newSelected.delete(orderId);
+    }
+    setSelectedOrders(newSelected);
+  };
+
   const handleEdit = (order: any) => {
     setEditOrder(order);
     setDialogOpen(true);
@@ -121,6 +153,38 @@ const AdminOrders = () => {
       return;
     }
     await sendToSteadfast.mutateAsync(order);
+  };
+
+  const handleBulkSendToSteadfast = async () => {
+    if (selectedEligibleOrders.length === 0) {
+      toast.error("কোনো অর্ডার সিলেক্ট করা হয়নি");
+      return;
+    }
+
+    setIsBulkSending(true);
+    let successCount = 0;
+    let failCount = 0;
+
+    for (const order of selectedEligibleOrders) {
+      try {
+        await sendToSteadfast.mutateAsync(order);
+        successCount++;
+      } catch (error) {
+        console.error(`Failed to send order ${order.order_number}:`, error);
+        failCount++;
+      }
+    }
+
+    setIsBulkSending(false);
+    setSelectedOrders(new Set());
+
+    if (successCount > 0 && failCount === 0) {
+      toast.success(`${successCount}টি অর্ডার সফলভাবে স্টেডফাস্ট এ পাঠানো হয়েছে`);
+    } else if (successCount > 0 && failCount > 0) {
+      toast.warning(`${successCount}টি সফল, ${failCount}টি ব্যর্থ`);
+    } else {
+      toast.error(`সব অর্ডার পাঠাতে ব্যর্থ হয়েছে`);
+    }
   };
 
   const handleTrackOrder = async (order: any) => {
@@ -147,6 +211,9 @@ const AdminOrders = () => {
     );
   }
 
+  const allEligibleSelected = eligibleForSteadfast.length > 0 && 
+    eligibleForSteadfast.every((o: any) => selectedOrders.has(o.id));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -168,7 +235,7 @@ const AdminOrders = () => {
         </div>
       </div>
 
-      {/* Filters */}
+      {/* Filters + Bulk Actions */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -194,6 +261,24 @@ const AdminOrders = () => {
             <SelectItem value="cancelled">বাতিল</SelectItem>
           </SelectContent>
         </Select>
+
+        {/* Bulk Send Button */}
+        {selectedEligibleOrders.length > 0 && (
+          <Button 
+            className="gap-2" 
+            onClick={handleBulkSendToSteadfast}
+            disabled={isBulkSending}
+          >
+            {isBulkSending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Truck className="h-4 w-4" />
+            )}
+            {isBulkSending 
+              ? `পাঠানো হচ্ছে...` 
+              : `${selectedEligibleOrders.length}টি স্টেডফাস্ট এ পাঠান`}
+          </Button>
+        )}
       </div>
 
       {/* Orders Table */}
@@ -201,6 +286,13 @@ const AdminOrders = () => {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-12">
+                <Checkbox
+                  checked={allEligibleSelected}
+                  onCheckedChange={handleSelectAll}
+                  aria-label="সব সিলেক্ট করুন"
+                />
+              </TableHead>
               <TableHead>অর্ডার</TableHead>
               <TableHead>কাস্টমার</TableHead>
               <TableHead className="text-center">পণ্য</TableHead>
@@ -215,128 +307,144 @@ const AdminOrders = () => {
           <TableBody>
             {filteredOrders.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={10} className="text-center py-8 text-muted-foreground">
                   কোনো অর্ডার পাওয়া যায়নি
                 </TableCell>
               </TableRow>
             ) : (
-              filteredOrders.map((order: any) => (
-                <TableRow key={order.id}>
-                  <TableCell className="font-medium font-mono">{order.order_number}</TableCell>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{order.customer_name}</p>
-                      <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-center">{order.order_items?.[0]?.count || 0}টি</TableCell>
-                  <TableCell className="text-right font-medium">
-                    ৳{Number(order.total_amount).toLocaleString()}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {getStatusBadge(order.order_status)}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {order.steadfast_consignment_id ? (
-                      <div className="flex flex-col items-center gap-1">
-                        {getSteadfastBadge(order.steadfast_status)}
-                        <a
-                          href={order.steadfast_tracking_code 
-                            ? `https://steadfast.com.bd/t/${order.steadfast_tracking_code}`
-                            : `https://steadfast.com.bd/t/${order.steadfast_consignment_id}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-primary hover:underline flex items-center gap-1"
-                        >
-                          {order.steadfast_consignment_id}
-                          <ExternalLink className="h-3 w-3" />
-                        </a>
-                      </div>
-                    ) : (
-                      // Show Send to Steadfast button if not yet sent
-                      !["delivered", "cancelled", "refunded"].includes(order.order_status) ? (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="gap-1 text-xs"
-                          onClick={() => handleSendToSteadfast(order)}
-                          disabled={sendToSteadfast.isPending}
-                        >
-                          {sendToSteadfast.isPending ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Truck className="h-3 w-3" />
-                          )}
-                          পাঠান
-                        </Button>
+              filteredOrders.map((order: any) => {
+                const isEligible = !order.steadfast_consignment_id && 
+                  !["delivered", "cancelled", "refunded"].includes(order.order_status);
+                
+                return (
+                  <TableRow key={order.id}>
+                    <TableCell>
+                      {isEligible ? (
+                        <Checkbox
+                          checked={selectedOrders.has(order.id)}
+                          onCheckedChange={(checked) => handleSelectOrder(order.id, !!checked)}
+                          aria-label={`সিলেক্ট ${order.order_number}`}
+                        />
                       ) : (
-                        <span className="text-xs text-muted-foreground">—</span>
-                      )
-                    )}
-                  </TableCell>
-                  <TableCell className="text-center">
-                    {getPaymentBadge(order.payment_status)}
-                  </TableCell>
-                  <TableCell className="text-center text-sm">
-                    {format(new Date(order.created_at), "dd MMM, yyyy", { locale: bn })}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(order)}>
-                          <Eye className="h-4 w-4 mr-2" />
-                          বিস্তারিত / এডিট
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStatusChange(order.id, "confirmed")}>
-                          কনফার্ম করুন
-                        </DropdownMenuItem>
-                        
-                        {/* Steadfast Options */}
-                        {!order.steadfast_consignment_id && (order.order_status === "confirmed" || order.order_status === "processing") && (
-                          <DropdownMenuItem 
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium font-mono">{order.order_number}</TableCell>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{order.customer_name}</p>
+                        <p className="text-sm text-muted-foreground">{order.customer_phone}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-center">{order.order_items?.[0]?.count || 0}টি</TableCell>
+                    <TableCell className="text-right font-medium">
+                      ৳{Number(order.total_amount).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {getStatusBadge(order.order_status)}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {order.steadfast_consignment_id ? (
+                        <div className="flex flex-col items-center gap-1">
+                          {getSteadfastBadge(order.steadfast_status)}
+                          <a
+                            href={order.steadfast_tracking_code 
+                              ? `https://steadfast.com.bd/t/${order.steadfast_tracking_code}`
+                              : `https://steadfast.com.bd/t/${order.steadfast_consignment_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-xs text-primary hover:underline flex items-center gap-1"
+                          >
+                            {order.steadfast_consignment_id}
+                            <ExternalLink className="h-3 w-3" />
+                          </a>
+                        </div>
+                      ) : (
+                        // Show Send to Steadfast button if not yet sent
+                        !["delivered", "cancelled", "refunded"].includes(order.order_status) ? (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-1 text-xs"
                             onClick={() => handleSendToSteadfast(order)}
                             disabled={sendToSteadfast.isPending}
                           >
                             {sendToSteadfast.isPending ? (
-                              <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
-                              <Truck className="h-4 w-4 mr-2" />
+                              <Truck className="h-3 w-3" />
                             )}
-                            স্টেডফাস্ট এ পাঠান
+                            পাঠান
+                          </Button>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )
+                      )}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      {getPaymentBadge(order.payment_status)}
+                    </TableCell>
+                    <TableCell className="text-center text-sm">
+                      {format(new Date(order.created_at), "dd MMM, yyyy", { locale: bn })}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handleEdit(order)}>
+                            <Eye className="h-4 w-4 mr-2" />
+                            বিস্তারিত / এডিট
                           </DropdownMenuItem>
-                        )}
-                        
-                        {order.steadfast_consignment_id && (
-                          <DropdownMenuItem onClick={() => handleTrackOrder(order)}>
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            ট্র্যাক করুন
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, "confirmed")}>
+                            কনফার্ম করুন
                           </DropdownMenuItem>
-                        )}
-                        
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem onClick={() => handleStatusChange(order.id, "shipped")}>
-                          শিপ করুন
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => handleStatusChange(order.id, "delivered")}>
-                          ডেলিভার্ড
-                        </DropdownMenuItem>
-                        <DropdownMenuItem 
-                          className="text-destructive"
-                          onClick={() => handleStatusChange(order.id, "cancelled")}
-                        >
-                          অর্ডার বাতিল
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))
+                          
+                          {/* Steadfast Options */}
+                          {!order.steadfast_consignment_id && (order.order_status === "confirmed" || order.order_status === "processing") && (
+                            <DropdownMenuItem 
+                              onClick={() => handleSendToSteadfast(order)}
+                              disabled={sendToSteadfast.isPending}
+                            >
+                              {sendToSteadfast.isPending ? (
+                                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                              ) : (
+                                <Truck className="h-4 w-4 mr-2" />
+                              )}
+                              স্টেডফাস্ট এ পাঠান
+                            </DropdownMenuItem>
+                          )}
+                          
+                          {order.steadfast_consignment_id && (
+                            <DropdownMenuItem onClick={() => handleTrackOrder(order)}>
+                              <ExternalLink className="h-4 w-4 mr-2" />
+                              ট্র্যাক করুন
+                            </DropdownMenuItem>
+                          )}
+                          
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, "shipped")}>
+                            শিপ করুন
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleStatusChange(order.id, "delivered")}>
+                            ডেলিভার্ড
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-destructive"
+                            onClick={() => handleStatusChange(order.id, "cancelled")}
+                          >
+                            অর্ডার বাতিল
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
@@ -345,6 +453,7 @@ const AdminOrders = () => {
         <div className="flex items-center justify-between p-4 border-t border-border">
           <p className="text-sm text-muted-foreground">
             {filteredOrders.length}টি অর্ডার দেখানো হচ্ছে
+            {selectedOrders.size > 0 && ` • ${selectedOrders.size}টি সিলেক্ট করা হয়েছে`}
           </p>
         </div>
       </div>
