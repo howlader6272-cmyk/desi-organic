@@ -300,7 +300,7 @@ const Checkout = () => {
         customer_name: data.fullName,
         customer_phone: data.phone,
         customer_email: data.email || undefined,
-        customer_address: data.address,
+        
         customer_city: data.city,
         order_id: order.order_number,
       });

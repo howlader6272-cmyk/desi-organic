@@ -114,7 +114,7 @@ const PaymentSuccess = () => {
                 customer_name: orderData.customerName,
                 customer_phone: orderData.customerPhone,
                 customer_email: orderData.customerEmail || undefined,
-                customer_address: orderData.shippingAddress,
+                
                 customer_city: orderData.shippingCity,
                 order_id: order.order_number,
               });

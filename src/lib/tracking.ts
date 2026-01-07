@@ -2,7 +2,15 @@
 // Pixel ID: 1392740588528295
 
 const FB_PIXEL_ID = '1392740588528295';
-const FB_ACCESS_TOKEN = 'EAAMg0F4WL88BQVSZC6XhChSRzwUIwUannO6tPm1FS0Y4TAdU0TOK14keuRZC6KZCg3ZBK8aCZB95OqX11DSphDBTbYbyxSmZB45tik9BeZAYE3mnBTeE0LSz6UsNBb1M9Ho6AslOlfSYOyrgjm0oFPKtXZBErL4ObK7L4xwR1ZA3DkBA62lxpOxb4ZAQAXfP6u5AZDZD';
+
+// Debug mode - set to false in production
+const DEBUG = true;
+
+const log = (event: string, data?: any) => {
+  if (DEBUG) {
+    console.log(`[FB Pixel] ${event}`, data || '');
+  }
+};
 
 // SHA-256 hash function for customer data
 const sha256Hash = async (value: string): Promise<string> => {
@@ -27,43 +35,13 @@ const normalizePhone = (phone: string): string => {
   return `880${cleaned}`;
 };
 
-// Initialize Facebook Pixel
-export const initFacebookPixel = () => {
-  if (typeof window === 'undefined') return;
-  
-  // Check if already initialized
-  if ((window as any).fbq) return;
-
-  // Facebook Pixel base code
-  (function(f: any, b: any, e: any, v: any, n?: any, t?: any, s?: any) {
-    if (f.fbq) return;
-    n = f.fbq = function() {
-      n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
-    };
-    if (!f._fbq) f._fbq = n;
-    n.push = n;
-    n.loaded = !0;
-    n.version = '2.0';
-    n.queue = [];
-    t = b.createElement(e);
-    t.async = !0;
-    t.src = v;
-    s = b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t, s);
-  })(window, document, 'script', 'https://connect.facebook.net/en_US/fbevents.js');
-
-  (window as any).fbq('init', FB_PIXEL_ID);
-  
-  // Fire PageView immediately after init
-  (window as any).fbq('track', 'PageView');
-};
-
 // ==========================================
 // EVENT 1: PageView
 // ==========================================
 export const trackPageView = () => {
-  if ((window as any).fbq) {
+  if (typeof window !== 'undefined' && (window as any).fbq) {
     (window as any).fbq('track', 'PageView');
+    log('PageView tracked');
   }
 };
 
@@ -78,13 +56,15 @@ export const trackViewContent = (data: {
   currency?: string;
 }) => {
   if ((window as any).fbq) {
-    (window as any).fbq('track', 'ViewContent', {
+    const eventData = {
       content_name: data.content_name,
       content_ids: data.content_ids,
       content_type: data.content_type || 'product',
       value: data.value,
       currency: data.currency || 'BDT',
-    });
+    };
+    (window as any).fbq('track', 'ViewContent', eventData);
+    log('ViewContent', eventData);
   }
 };
 
@@ -99,13 +79,15 @@ export const trackAddToCart = (data: {
   currency?: string;
 }) => {
   if ((window as any).fbq) {
-    (window as any).fbq('track', 'AddToCart', {
+    const eventData = {
       content_name: data.content_name,
       content_ids: data.content_ids,
       content_type: data.content_type || 'product',
       value: data.value,
       currency: data.currency || 'BDT',
-    });
+    };
+    (window as any).fbq('track', 'AddToCart', eventData);
+    log('AddToCart', eventData);
   }
 };
 
@@ -122,9 +104,7 @@ export interface PurchaseData {
   customer_name?: string;
   customer_phone?: string;
   customer_email?: string;
-  customer_address?: string;
   customer_city?: string;
-  customer_postal_code?: string;
   order_id?: string;
 }
 
@@ -141,7 +121,6 @@ export const trackPurchase = async (data: PurchaseData) => {
     currency: data.currency || 'BDT',
   };
 
-  // Add order_id if available
   if (data.order_id) {
     eventData.order_id = data.order_id;
   }
@@ -150,18 +129,15 @@ export const trackPurchase = async (data: PurchaseData) => {
   const userData: any = {};
 
   try {
-    // Hash customer phone (em = email, ph = phone, fn = first name, ln = last name)
     if (data.customer_phone) {
       const normalizedPhone = normalizePhone(data.customer_phone);
       userData.ph = await sha256Hash(normalizedPhone);
     }
 
-    // Hash customer email
     if (data.customer_email) {
       userData.em = await sha256Hash(data.customer_email);
     }
 
-    // Hash customer name (split into first and last name)
     if (data.customer_name) {
       const nameParts = data.customer_name.trim().split(' ');
       if (nameParts.length > 0) {
@@ -172,34 +148,23 @@ export const trackPurchase = async (data: PurchaseData) => {
       }
     }
 
-    // Hash city
     if (data.customer_city) {
       userData.ct = await sha256Hash(data.customer_city);
     }
 
-    // Hash postal code (if available)
-    if (data.customer_postal_code) {
-      userData.zp = await sha256Hash(data.customer_postal_code);
-    }
-
-    // Country code for Bangladesh
     userData.country = await sha256Hash('bd');
-
   } catch (error) {
-    console.error('Error hashing user data:', error);
+    console.error('[FB Pixel] Error hashing user data:', error);
   }
 
-  // Fire the Purchase event with user data
+  // Set user data for Advanced Matching if available
   if (Object.keys(userData).length > 0) {
-    // Set user data for Advanced Matching
     (window as any).fbq('init', FB_PIXEL_ID, userData);
   }
 
   // Track the Purchase event
   (window as any).fbq('track', 'Purchase', eventData);
+  log('Purchase', { eventData, userData: Object.keys(userData) });
 };
 
-// ==========================================
-// Tracking Hook for automatic PageView
-// ==========================================
-export { FB_PIXEL_ID, FB_ACCESS_TOKEN };
+export { FB_PIXEL_ID };
