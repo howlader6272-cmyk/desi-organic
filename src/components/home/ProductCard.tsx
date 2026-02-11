@@ -81,7 +81,7 @@ const ProductCard = ({
   };
 
   return (
-    <div className="group bg-card rounded-xl overflow-hidden border border-border shadow-card hover:shadow-hover transition-all duration-300">
+    <div className="group bg-card rounded-xl overflow-hidden border border-border shadow-card hover:shadow-hover transition-all duration-300 flex flex-col h-full">
       {/* Image */}
       <Link to={`/product/${slug}`} className="block relative aspect-square overflow-hidden">
         <img
@@ -121,7 +121,7 @@ const ProductCard = ({
       </Link>
 
       {/* Content */}
-      <div className="p-4 space-y-3">
+      <div className="p-4 flex flex-col flex-grow space-y-3">
         {/* Rating */}
         {rating > 0 && (
           <div className="flex items-center gap-1">
@@ -139,7 +139,7 @@ const ProductCard = ({
         </Link>
 
         {/* Price & Cart - Desktop */}
-        <div className="hidden md:flex items-center justify-between gap-2">
+        <div className="hidden md:flex mt-auto items-center justify-between gap-2">
           <div className="flex items-baseline gap-2">
             <span className="text-lg font-bold text-primary">
               {formatPrice(sale_price || base_price)}
@@ -163,7 +163,7 @@ const ProductCard = ({
         </div>
 
         {/* Price & Cart - Mobile */}
-        <div className="md:hidden space-y-3">
+        <div className="md:hidden mt-auto space-y-3">
           <div className="flex items-baseline gap-2">
             <span className="text-lg font-bold text-primary">
               {formatPrice(sale_price || base_price)}
