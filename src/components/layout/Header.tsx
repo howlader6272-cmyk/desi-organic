@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, ShoppingCart, User, Menu, Phone, Leaf, PackageSearch } from "lucide-react";
+import { Search, ShoppingCart, User, Menu, Phone, Leaf, PackageSearch, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -43,9 +43,18 @@ const Header = ({ cartCount = 0 }: HeaderProps) => {
       <div className="hidden md:block bg-muted/50 border-b border-border">
         <div className="container flex items-center justify-between py-1.5 text-sm text-muted-foreground">
           <div className="flex items-center gap-4">
-            <a href="tel:+8801XXXXXXXXX" className="flex items-center gap-1 hover:text-primary transition-colors">
+            <a href="tel:+8801300317979" className="flex items-center gap-1 hover:text-primary transition-colors">
               <Phone className="h-3.5 w-3.5" />
-              <span>+880 1XXX-XXXXXX</span>
+              <span>01300317979</span>
+            </a>
+            <a
+              href="https://wa.me/8801300317979"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1 hover:text-primary transition-colors"
+            >
+              <MessageCircle className="h-3.5 w-3.5" />
+              <span>WhatsApp: 01300317979</span>
             </a>
           </div>
           <p className="text-xs">প্রতিদিন সকাল ৯টা - রাত ১০টা</p>
@@ -65,8 +74,8 @@ const Header = ({ cartCount = 0 }: HeaderProps) => {
             <SheetContent side="left" className="w-72">
               <SheetHeader>
                 <SheetTitle className="flex items-center gap-2 text-primary">
-                  <Leaf className="h-5 w-5" />
-                  অর্গানিক স্টোর
+                  <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="h-6 w-6 rounded-full" />
+                  নিত্যদিন Nityodin
                 </SheetTitle>
               </SheetHeader>
               <nav className="mt-8 flex flex-col gap-2">
@@ -85,11 +94,9 @@ const Header = ({ cartCount = 0 }: HeaderProps) => {
 
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 flex-shrink-0">
-            <div className="w-10 h-10 rounded-full gradient-organic flex items-center justify-center">
-              <Leaf className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="w-10 h-10 rounded-full" />
             <div className="hidden sm:block">
-              <h1 className="text-lg font-bold text-primary leading-tight">অর্গানিক স্টোর</h1>
+              <h1 className="text-lg font-bold text-primary leading-tight">নিত্যদিন Nityodin</h1>
               <p className="text-[10px] text-muted-foreground -mt-0.5">প্রকৃতির স্পর্শে স্বাস্থ্যকর জীবন</p>
             </div>
           </Link>

@@ -1,14 +1,38 @@
--- Create app_role enum for role-based access
-CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'staff', 'user');
+-- Create app_role enum for role-based access (idempotent)
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'app_role') THEN
+    CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'staff', 'user');
+  END IF;
+END
+$$;
 
 -- Create order_status enum
-CREATE TYPE public.order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'order_status') THEN
+    CREATE TYPE public.order_status AS ENUM ('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled', 'refunded');
+  END IF;
+END
+$$;
 
 -- Create payment_status enum
-CREATE TYPE public.payment_status AS ENUM ('unpaid', 'partial', 'paid', 'refunded');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_status') THEN
+    CREATE TYPE public.payment_status AS ENUM ('unpaid', 'partial', 'paid', 'refunded');
+  END IF;
+END
+$$;
 
 -- Create payment_method enum
-CREATE TYPE public.payment_method AS ENUM ('cod', 'uddoktapay', 'bkash', 'nagad');
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'payment_method') THEN
+    CREATE TYPE public.payment_method AS ENUM ('cod', 'uddoktapay', 'bkash', 'nagad');
+  END IF;
+END
+$$;
 
 -- ============================================
 -- PROFILES TABLE
@@ -41,7 +65,7 @@ WITH CHECK (auth.uid() = user_id);
 -- ============================================
 -- USER ROLES TABLE (Separate for security)
 -- ============================================
-CREATE TABLE public.user_roles (
+CREATE TABLE IF NOT EXISTS public.user_roles (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
     role app_role NOT NULL DEFAULT 'user',
@@ -67,13 +91,31 @@ AS $$
     )
 $$;
 
-CREATE POLICY "Users can view their own roles"
-ON public.user_roles FOR SELECT
-USING (auth.uid() = user_id);
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' AND tablename = 'user_roles' AND policyname = 'Users can view their own roles'
+  ) THEN
+    CREATE POLICY "Users can view their own roles"
+    ON public.user_roles FOR SELECT
+    USING (auth.uid() = user_id);
+  END IF;
+END
+$$;
 
-CREATE POLICY "Admins can manage all roles"
-ON public.user_roles FOR ALL
-USING (public.has_role(auth.uid(), 'admin'));
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE schemaname = 'public' AND tablename = 'user_roles' AND policyname = 'Admins can manage all roles'
+  ) THEN
+    CREATE POLICY "Admins can manage all roles"
+    ON public.user_roles FOR ALL
+    USING (public.has_role(auth.uid(), 'admin'));
+  END IF;
+END
+$$;
 
 -- ============================================
 -- CATEGORIES TABLE

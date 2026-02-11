@@ -111,7 +111,7 @@ export const useInvoiceDownload = () => {
       <body>
         <div class="header">
           <div>
-            <div class="logo">অর্গানিক স্টোর</div>
+            <div class="logo">নিত্যদিন Nityodin</div>
             <div class="logo-sub">১০০% প্রাকৃতিক ও অর্গানিক পণ্য</div>
           </div>
           <div class="invoice-info">
@@ -189,7 +189,7 @@ export const useInvoiceDownload = () => {
 
         <div class="footer">
           <p>ধন্যবাদ আমাদের থেকে কেনাকাটা করার জন্য!</p>
-          <p>যেকোনো সমস্যায় যোগাযোগ করুন: +880 1XXX-XXXXXX</p>
+          <p>যেকোনো সমস্যায় যোগাযোগ করুন: 01300317979</p>
         </div>
 
         <script>window.onload = function() { window.print(); }</script>

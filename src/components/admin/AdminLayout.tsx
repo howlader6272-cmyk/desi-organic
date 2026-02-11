@@ -211,7 +211,7 @@ const AdminLayout = () => {
             <Menu className="h-5 w-5" />
           </button>
           <Link to="/admin" className="flex items-center gap-2">
-            <Leaf className="h-5 w-5 text-primary" />
+            <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="h-6 w-6 rounded-full" />
             <span className="font-bold text-primary">অ্যাডমিন</span>
           </Link>
           <div className="w-10" />
@@ -238,12 +238,10 @@ const AdminLayout = () => {
             <div className="p-4 border-b border-border">
               <div className="flex items-center justify-between">
                 <Link to="/admin" className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full gradient-organic flex items-center justify-center">
-                    <Leaf className="h-5 w-5 text-primary-foreground" />
-                  </div>
+                  <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="w-10 h-10 rounded-full" />
                   <div>
                     <p className="font-bold text-primary">অ্যাডমিন প্যানেল</p>
-                    <p className="text-xs text-muted-foreground">অর্গানিক স্টোর</p>
+                    <p className="text-xs text-muted-foreground">নিত্যদিন Nityodin</p>
                   </div>
                 </Link>
                 <button

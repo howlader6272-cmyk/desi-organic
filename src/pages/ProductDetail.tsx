@@ -331,6 +331,11 @@ const ProductDetail = () => {
                   src={images[selectedImageIndex]}
                   alt={product.name_bn}
                   className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
+                  onError={(e) => {
+                    const target = e.currentTarget as HTMLImageElement;
+                    target.src = "/placeholder.svg";
+                  }}
                 />
                 
                 {images.length > 1 && (
@@ -374,7 +379,16 @@ const ProductDetail = () => {
                         idx === selectedImageIndex ? "border-primary" : "border-border"
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img
+                        src={img}
+                        alt=""
+                        className="w-full h-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          const target = e.currentTarget as HTMLImageElement;
+                          target.src = "/placeholder.svg";
+                        }}
+                      />
                     </button>
                   ))}
                 </div>

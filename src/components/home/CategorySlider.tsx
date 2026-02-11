@@ -106,6 +106,11 @@ const CategorySlider = () => {
                       src={category.image_url}
                       alt={category.name_bn}
                       className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                      onError={(e) => {
+                        e.currentTarget.src = "/placeholder.svg";
+                        e.currentTarget.alt = "ক্যাটাগরি ইমেজ পাওয়া যায়নি";
+                      }}
+                      referrerPolicy="no-referrer"
                     />
                   ) : (
                     <div className="w-full h-full bg-muted flex items-center justify-center">

@@ -50,8 +50,27 @@ const Contact = () => {
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">ফোন</h3>
-                    <p className="text-muted-foreground">+880 1XXX-XXXXXX</p>
-                    <p className="text-muted-foreground">+880 1XXX-XXXXXX</p>
+                    <p className="text-muted-foreground">01300317979</p>
+                    <p className="text-muted-foreground">01300317979</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-card p-6 rounded-xl border border-border">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <MessageCircle className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-foreground mb-1">হোয়াটসঅ্যাপ</h3>
+                    <a
+                      href="https://wa.me/8801300317979"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-muted-foreground hover:text-primary"
+                    >
+                      01300317979
+                    </a>
                   </div>
                 </div>
               </div>

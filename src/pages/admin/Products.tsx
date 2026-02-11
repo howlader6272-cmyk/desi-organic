@@ -126,6 +126,11 @@ const AdminProducts = () => {
                           src={product.images[0]}
                           alt={product.name_bn}
                           className="w-full h-full object-cover"
+                          referrerPolicy="no-referrer"
+                          onError={(e) => {
+                            const target = e.currentTarget as HTMLImageElement;
+                            target.src = "/placeholder.svg";
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center">

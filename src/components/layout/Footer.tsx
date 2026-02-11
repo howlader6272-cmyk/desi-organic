@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Leaf, Phone, Mail, MapPin, Facebook, Instagram, Youtube } from "lucide-react";
+import { Leaf, Phone, Mail, MapPin, Facebook, Instagram, Youtube, MessageCircle } from "lucide-react";
 
 const Footer = () => {
   return (
@@ -10,11 +10,9 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-full gradient-organic flex items-center justify-center">
-                <Leaf className="h-5 w-5 text-primary-foreground" />
-              </div>
+              <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="w-10 h-10 rounded-full" />
               <div>
-                <h2 className="text-lg font-bold text-primary">অর্গানিক স্টোর</h2>
+                <h2 className="text-lg font-bold text-primary">নিত্যদিন Nityodin</h2>
                 <p className="text-[10px] text-muted-foreground">প্রকৃতির স্পর্শে স্বাস্থ্যকর জীবন</p>
               </div>
             </Link>
@@ -99,11 +97,22 @@ const Footer = () => {
             <ul className="space-y-3">
               <li>
                 <a
-                  href="tel:+8801XXXXXXXXX"
+                  href="tel:+8801300317979"
                   className="flex items-start gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Phone className="h-4 w-4 mt-0.5 flex-shrink-0" />
-                  <span>+880 1XXX-XXXXXX</span>
+                  <span>01300317979</span>
+                </a>
+              </li>
+              <li>
+                <a
+                  href="https://wa.me/8801300317979"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-start gap-3 text-sm text-muted-foreground hover:text-primary transition-colors"
+                >
+                  <MessageCircle className="h-4 w-4 mt-0.5 flex-shrink-0" />
+                  <span>WhatsApp: 01300317979</span>
                 </a>
               </li>
               <li>
@@ -138,7 +147,7 @@ const Footer = () => {
       <div className="border-t border-border bg-muted/30">
         <div className="container py-4">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-2 text-sm text-muted-foreground">
-            <p>© {new Date().getFullYear()} অর্গানিক স্টোর। সর্বস্বত্ব সংরক্ষিত।</p>
+            <p>© {new Date().getFullYear()} নিত্যদিন Nityodin। সর্বস্বত্ব সংরক্ষিত।</p>
             <p className="text-xs">ডেভলাপার - ইফতিকার রহমান</p>
           </div>
         </div>

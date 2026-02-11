@@ -106,11 +106,9 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Logo */}
         <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-12 h-12 rounded-full gradient-organic flex items-center justify-center">
-            <Leaf className="h-6 w-6 text-primary-foreground" />
-          </div>
+          <img src="/logo-nityodin.svg" alt="নিত্যদিন Nityodin" className="w-12 h-12 rounded-full" />
           <div>
-            <h1 className="text-xl font-bold text-primary">অর্গানিক স্টোর</h1>
+            <h1 className="text-xl font-bold text-primary">নিত্যদিন Nityodin</h1>
             <p className="text-xs text-muted-foreground">প্রকৃতির স্পর্শে স্বাস্থ্যকর জীবন</p>
           </div>
         </Link>

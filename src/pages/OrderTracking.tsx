@@ -450,7 +450,7 @@ const OrderTracking = () => {
                 <CardContent className="py-6">
                   <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                     <p className="text-sm text-muted-foreground text-center sm:text-left">
-                      সমস্যায় কল করুন: <strong>+880 1XXX-XXXXXX</strong>
+                      সমস্যায় কল করুন: <strong>01300317979</strong>
                     </p>
                     <div className="flex gap-3">
                       <Button 

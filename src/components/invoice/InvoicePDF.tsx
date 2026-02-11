@@ -164,7 +164,7 @@ const InvoicePDF = forwardRef<HTMLDivElement, InvoicePDFProps>(({ order }, ref) 
       {/* Footer */}
       <div className="mt-8 pt-4 border-t text-center text-xs text-gray-500">
         <p>ধন্যবাদ আমাদের থেকে কেনাকাটা করার জন্য!</p>
-        <p className="mt-1">যেকোনো সমস্যায় যোগাযোগ করুন: +880 1XXX-XXXXXX</p>
+        <p className="mt-1">যেকোনো সমস্যায় যোগাযোগ করুন: 01300317979</p>
       </div>
     </div>
   );

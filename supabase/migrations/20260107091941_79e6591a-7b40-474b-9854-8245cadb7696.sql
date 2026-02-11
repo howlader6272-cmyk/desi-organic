@@ -1,4 +1,4 @@
--- Add admin role for ifterahman.web@gmail.com
+-- Add admin role for ifterahman.web@gmail.com (idempotent by email)
 INSERT INTO public.user_roles (user_id, role)
-VALUES ('0e91b0f7-90d5-45c4-9450-8dea7e97ccc2', 'admin')
+SELECT id, 'admin'::public.app_role FROM auth.users WHERE email = 'ifterahman.web@gmail.com'
 ON CONFLICT (user_id, role) DO NOTHING;
