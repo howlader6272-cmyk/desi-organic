@@ -185,6 +185,26 @@ const Checkout = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate all products in cart exist in current database
+      const { data: validProducts, error: validationError } = await supabase
+        .from("products")
+        .select("id")
+        .in("id", items.map(item => item.productId));
+
+      if (validationError) {
+        console.error("Cart validation error:", validationError);
+      }
+
+      if (!validProducts || validProducts.length !== new Set(items.map(item => item.productId)).size) {
+        toast({
+          title: "কার্টে সমস্যা পাওয়া গেছে",
+          description: "আপনার কার্টে থাকা কিছু পণ্য পুরোনো ডাটাবেসের। দয়া করে কার্ট খালি করে আবার পণ্য যোগ করুন।",
+          variant: "destructive",
+        });
+        setIsSubmitting(false);
+        return;
+      }
+
       // Handle UddoktaPay payment
       if (paymentMethod === "uddoktapay") {
         const paymentAmount = total;
