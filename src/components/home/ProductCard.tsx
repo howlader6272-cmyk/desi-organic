@@ -123,29 +123,37 @@ const ProductCard = ({
       {/* Content */}
       <div className="p-4 flex flex-col flex-grow space-y-3">
         {/* Rating */}
-        {rating > 0 && (
-          <div className="flex items-center gap-1">
-            <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
-            <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
-            <span className="text-xs text-muted-foreground">({reviews_count})</span>
-          </div>
-        )}
+        <div className="flex items-center gap-1 min-h-[1.25rem]">
+          {rating > 0 ? (
+            <>
+              <Star className="h-3.5 w-3.5 fill-yellow-400 text-yellow-400" />
+              <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
+              <span className="text-xs text-muted-foreground">({reviews_count})</span>
+            </>
+          ) : (
+            <span className="text-xs invisible">No ratings</span>
+          )}
+        </div>
 
         {/* Name */}
-        <Link to={`/product/${slug}`}>
-          <h3 className="font-semibold text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors">
+        <Link to={`/product/${slug}`} className="block">
+          <h3 className="font-semibold text-foreground line-clamp-2 leading-snug group-hover:text-primary transition-colors min-h-[2.5rem] md:min-h-[3rem]">
             {name_bn}
           </h3>
         </Link>
 
         {/* Price & Cart - Desktop */}
         <div className="hidden md:flex mt-auto items-center justify-between gap-2">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 min-h-[1.75rem]">
             <span className="text-lg font-bold text-primary">
               {formatPrice(sale_price || base_price)}
             </span>
-            {hasDiscount && (
+            {hasDiscount ? (
               <span className="text-sm text-muted-foreground line-through">
+                {formatPrice(base_price)}
+              </span>
+            ) : (
+              <span className="text-sm invisible">
                 {formatPrice(base_price)}
               </span>
             )}
@@ -164,12 +172,16 @@ const ProductCard = ({
 
         {/* Price & Cart - Mobile */}
         <div className="md:hidden mt-auto space-y-3">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-baseline gap-2 min-h-[1.75rem]">
             <span className="text-lg font-bold text-primary">
               {formatPrice(sale_price || base_price)}
             </span>
-            {hasDiscount && (
+            {hasDiscount ? (
               <span className="text-sm text-muted-foreground line-through">
+                {formatPrice(base_price)}
+              </span>
+            ) : (
+              <span className="text-sm invisible">
                 {formatPrice(base_price)}
               </span>
             )}
