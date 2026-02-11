@@ -100,9 +100,10 @@ const OrderTracking = () => {
 
     try {
       const rawQuery = query.trim();
-      const phoneQuery = rawQuery.startsWith("#") ? rawQuery.slice(1) : rawQuery;
-      const orderNumberWithHash = rawQuery.startsWith("#") ? rawQuery : `#${rawQuery}`;
-
+      
+      // Clean query: remove # if present for phone search or clean order number search
+      const cleanQuery = rawQuery.startsWith("#") ? rawQuery.slice(1) : rawQuery;
+      
       const orderSelect = `
           id, order_number, customer_name, customer_phone, customer_email,
           shipping_address, shipping_city, shipping_area, order_status,
@@ -112,31 +113,66 @@ const OrderTracking = () => {
           order_items (product_name, variant_name, quantity, unit_price, total_price)
         `;
 
-      // Try: order number first (DB stores order_number with "#")
-      const byOrderRes = await supabase
+      console.log("Tracking search for:", rawQuery);
+
+      // Try 1: Exact order number as entered
+      let { data, error: fetchError } = await supabase
         .from("orders")
         .select(orderSelect)
-        .eq("order_number", orderNumberWithHash)
+        .eq("order_number", rawQuery)
         .maybeSingle();
 
-      let data = byOrderRes.data;
-      let fetchError = byOrderRes.error;
-
-      // Fallback: search by phone number (latest order)
-      if (!fetchError && !data) {
-        const byPhoneRes = await supabase
+      // Try 2: Order number with # prefix (if not entered with one)
+      if (!data && !fetchError && !rawQuery.startsWith("#")) {
+        const withHash = `#${rawQuery}`;
+        const res = await supabase
           .from("orders")
           .select(orderSelect)
-          .eq("customer_phone", phoneQuery)
+          .eq("order_number", withHash)
+          .maybeSingle();
+        data = res.data;
+        fetchError = res.error;
+      }
+
+      // Try 3: Order number without # prefix (if entered with one)
+      if (!data && !fetchError && rawQuery.startsWith("#")) {
+        const withoutHash = rawQuery.slice(1);
+        const res = await supabase
+          .from("orders")
+          .select(orderSelect)
+          .eq("order_number", withoutHash)
+          .maybeSingle();
+        data = res.data;
+        fetchError = res.error;
+      }
+
+      // Try 4: Case-insensitive search for ORD- prefix
+      if (!data && !fetchError) {
+        const res = await supabase
+          .from("orders")
+          .select(orderSelect)
+          .ilike("order_number", rawQuery)
+          .maybeSingle();
+        data = res.data;
+        fetchError = res.error;
+      }
+
+      // Try 5: search by phone number (latest order)
+      if (!data && !fetchError) {
+        const res = await supabase
+          .from("orders")
+          .select(orderSelect)
+          .eq("customer_phone", cleanQuery)
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle();
 
-        data = byPhoneRes.data;
-        fetchError = byPhoneRes.error;
+        data = res.data;
+        fetchError = res.error;
       }
 
       if (fetchError) {
+        console.error("Tracking fetch error:", fetchError);
         setError("কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।");
         return;
       }
@@ -148,6 +184,7 @@ const OrderTracking = () => {
 
       setOrder(data as OrderData);
     } catch (err) {
+      console.error("Tracking catch error:", err);
       setError("কিছু সমস্যা হয়েছে। আবার চেষ্টা করুন।");
     } finally {
       setLoading(false);
