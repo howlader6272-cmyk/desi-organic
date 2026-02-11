@@ -50,6 +50,7 @@ const OrderTracking = () => {
   const [searchParams] = useSearchParams();
   const [trackingInput, setTrackingInput] = useState(searchParams.get("order") || "");
   const [order, setOrder] = useState<OrderData | null>(null);
+  const [orders, setOrders] = useState<OrderData[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searched, setSearched] = useState(false);
@@ -96,6 +97,7 @@ const OrderTracking = () => {
     setLoading(true);
     setError("");
     setOrder(null);
+    setOrders([]);
     setSearched(true);
 
     try {
@@ -157,17 +159,25 @@ const OrderTracking = () => {
         fetchError = res.error;
       }
 
-      // Try 5: search by phone number (latest order)
+      // Try 5: search by phone number (last 5 orders)
       if (!data && !fetchError) {
         const res = await supabase
           .from("orders")
           .select(orderSelect)
           .eq("customer_phone", cleanQuery)
           .order("created_at", { ascending: false })
-          .limit(1)
-          .maybeSingle();
+          .limit(5);
 
-        data = res.data;
+        if (res.data && res.data.length > 0) {
+          if (res.data.length === 1) {
+            data = res.data[0];
+          } else {
+            setOrders(res.data as OrderData[]);
+            setOrder(res.data[0] as OrderData); // Set the latest as default
+            setLoading(false);
+            return;
+          }
+        }
         fetchError = res.error;
       }
 
@@ -275,6 +285,23 @@ const OrderTracking = () => {
           )}
 
           {/* Order Details */}
+          {orders.length > 1 && (
+            <div className="mb-6 flex flex-wrap gap-2">
+              <p className="w-full text-sm text-muted-foreground mb-1">আপনার একাধিক অর্ডার পাওয়া গেছে (সর্বশেষ ৫টি):</p>
+              {orders.map((o) => (
+                <Button
+                  key={o.id}
+                  variant={order?.id === o.id ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setOrder(o)}
+                  className="font-mono"
+                >
+                  {o.order_number}
+                </Button>
+              ))}
+            </div>
+          )}
+
           {order && (
             <div className="space-y-6 animate-in fade-in-50 duration-300">
               {/* Order Header */}
