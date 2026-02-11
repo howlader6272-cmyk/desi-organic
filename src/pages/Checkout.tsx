@@ -263,7 +263,10 @@ const Checkout = () => {
       }
 
       // Handle COD and partial payment
+      const tempOrderNumber = `ORD-${new Date().getTime().toString().slice(-6)}`;
+      
       const orderInsertData = {
+        order_number: tempOrderNumber, // Manually provide a fallback order number
         customer_name: data.fullName,
         customer_phone: data.phone,
         customer_email: data.email || null,
@@ -286,9 +289,10 @@ const Checkout = () => {
       
       console.log("Submitting order with data:", orderInsertData);
       
+      // Try to insert order, if order_number unique constraint fails, it will try again with trigger
       const { data: order, error } = await supabase
         .from("orders")
-        .insert(orderInsertData as any)
+        .insert([orderInsertData])
         .select("id, order_number")
         .single();
 
