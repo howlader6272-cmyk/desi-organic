@@ -85,30 +85,30 @@ const PaymentSuccess = () => {
               .select("order_number")
               .single();
 
-            if (!error && order) {
+            if (error) {
+              console.error("Supabase order insert error (UddoktaPay):", error);
+              setStatus("failed");
+              return;
+            }
+
+            if (order) {
               setOrderNumber(order.order_number);
               
               // Create order items
               if (orderData.items && orderData.items.length > 0) {
-                const orderItems = orderData.items.map((item: any) => ({
-                  order_id: order.order_number, // We need the actual order id
-                  product_id: item.productId,
-                  product_name: item.name,
-                  variant_name: item.variantName || null,
-                  quantity: item.quantity,
-                  unit_price: item.price,
-                  total_price: item.price * item.quantity,
-                }));
-                
                 // Get actual order ID for items
-                const { data: orderRow } = await supabase
+                const { data: orderRow, error: rowError } = await supabase
                   .from("orders")
                   .select("id")
                   .eq("order_number", order.order_number)
                   .single();
                 
+                if (rowError) {
+                  console.error("Supabase orderRow fetch error:", rowError);
+                }
+
                 if (orderRow) {
-                  await supabase.from("order_items").insert(
+                  const { error: itemsError } = await supabase.from("order_items").insert(
                     orderData.items.map((item: any) => ({
                       order_id: orderRow.id,
                       product_id: item.productId,
@@ -119,6 +119,10 @@ const PaymentSuccess = () => {
                       total_price: item.price * item.quantity,
                     }))
                   );
+
+                  if (itemsError) {
+                    console.error("Supabase order_items insert error (UddoktaPay):", itemsError);
+                  }
                 }
               }
               

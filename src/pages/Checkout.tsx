@@ -264,17 +264,22 @@ const Checkout = () => {
         user_id: user?.id || null,
       };
       
+      console.log("Submitting order with data:", orderInsertData);
+      
       const { data: order, error } = await supabase
         .from("orders")
         .insert(orderInsertData as any)
         .select("id, order_number")
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Supabase order insert error:", error);
+        throw error;
+      }
 
       // Create order items
       if (order) {
-        await supabase.from("order_items").insert(
+        const { error: itemsError } = await supabase.from("order_items").insert(
           items.map(item => ({
             order_id: order.id,
             product_id: item.productId,
@@ -285,6 +290,11 @@ const Checkout = () => {
             total_price: item.price * item.quantity,
           }))
         );
+
+        if (itemsError) {
+          console.error("Supabase order_items insert error:", itemsError);
+          throw itemsError;
+        }
       }
 
       // Mark incomplete order as converted and clear cart
